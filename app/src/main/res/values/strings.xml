@@ -1,0 +1,17 @@
+<resources>
+    <string name="app_name">MyLocation</string>
+    <string name="latitude">Latitude: </string>
+    <string name="longitude">Longitude: </string>
+    <string name="accuracy">Accuracy: </string>
+    <string name="speed">Speed: </string>
+    <string name="bearing">Bearing: </string>
+    <string name="start">Start</string>
+    <string name="stop">Stop</string>
+    <string name="timer">logging time: </string>
+    <string name="refresh">Refresh</string>
+    <string name="waiting">waiting...</string>
+    <string name="tracking">tracking position...</string>
+    <string name="stopping">tracking stopped!</string>
+
+
+</resources>
