@@ -9,6 +9,7 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Handler;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.telephony.PhoneNumberUtils;
@@ -19,7 +20,15 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class MainActivity extends AppCompatActivity {
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
+
+
+public class MainActivity extends FragmentActivity implements OnMapReadyCallback {
 
     private double latitude;
     private double longitude;
@@ -31,8 +40,12 @@ public class MainActivity extends AppCompatActivity {
     private MyLocationListener mylistener = new MyLocationListener();
     private Criteria criteria;
 
+    //map
+    private GoogleMap googleMap;
+    //map
 
-    //Test Timer
+
+    //Timer
     TextView timerTextView;
     long startTime = 0;
     Handler timerHandler = new Handler();
@@ -49,7 +62,7 @@ public class MainActivity extends AppCompatActivity {
             timerHandler.postDelayed(this, 500);
         }
     };
-    //Test Timer
+    //Timer
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,12 +73,19 @@ public class MainActivity extends AppCompatActivity {
         timerTextView = (TextView) findViewById(R.id.textView_time);
         //Timer
 
+        //Map
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
+        mapFragment.getMapAsync(this);
+        //Map
+
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         criteria = new Criteria();
         criteria.setAccuracy(Criteria.ACCURACY_COARSE);
 
         criteria.setCostAllowed(false);
         provider = locationManager.getBestProvider(criteria, false);
+        Location location = locationManager.getLastKnownLocation(provider);
+
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // TODO: Consider calling
@@ -95,7 +115,10 @@ public class MainActivity extends AppCompatActivity {
                     Log.d("test", "no permission");
                     return;
                 }
-                locationManager.requestLocationUpdates(provider, 0, 0, mylistener);
+
+
+
+               locationManager.requestLocationUpdates(provider, 1000, 0, mylistener);
                 updateGui();
 
                 TextView textViewStart = (TextView) findViewById(R.id.textView_status);
@@ -157,6 +180,17 @@ public class MainActivity extends AppCompatActivity {
         textViewSpeed.setText(getString(R.string.speed) + " " + String.valueOf(speed));
         textViewBearing.setText(getString(R.string.bearing) + " " + String.valueOf(bearing));
 
+    }
+
+
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        this.googleMap = googleMap;
+
+        // Add a marker in Sydney and move the camera
+        LatLng sydney = new LatLng(-34, 151);
+       googleMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
+       googleMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
     }
 
     private class MyLocationListener implements LocationListener {
