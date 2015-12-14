@@ -117,8 +117,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                 }
 
 
-
-               locationManager.requestLocationUpdates(provider, 1000, 0, mylistener);
+                locationManager.requestLocationUpdates(provider, 1000, 0, mylistener);
                 updateGui();
 
                 TextView textViewStart = (TextView) findViewById(R.id.textView_status);
@@ -179,28 +178,26 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         textViewAccuracy.setText(getString(R.string.accuracy) + " " + String.valueOf(accuracy) + "m");
         textViewSpeed.setText(getString(R.string.speed) + " " + String.valueOf(speed));
         textViewBearing.setText(getString(R.string.bearing) + " " + String.valueOf(bearing));
-
+        onMapReady(googleMap);
     }
 
-
+    //map
     @Override
     public void onMapReady(GoogleMap googleMap) {
         this.googleMap = googleMap;
 
-        // Add a marker in Sydney and move the camera
-        LatLng sydney = new LatLng(-34, 151);
-       googleMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-       googleMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+        if (latitude != 0 && longitude != 0) {
+            LatLng myPos = new LatLng(latitude, longitude);
+            googleMap.addMarker(new MarkerOptions().position(myPos).title("Meine Position"));
+            googleMap.moveCamera(CameraUpdateFactory.newLatLng(myPos));
+        }
     }
+    //map
 
     private class MyLocationListener implements LocationListener {
 
         @Override
         public void onLocationChanged(Location location) {
-            // Initialize the location fields
-
-//            Toast.makeText(MainActivity.this, "" + location.getLatitude() + location.getLongitude(),
-            //                  Toast.LENGTH_SHORT).show();
 
             longitude = location.getLongitude();
             latitude = location.getLatitude();
