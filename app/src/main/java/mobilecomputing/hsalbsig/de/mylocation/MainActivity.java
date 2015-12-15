@@ -1,25 +1,25 @@
 package mobilecomputing.hsalbsig.de.mylocation;
 
 import android.Manifest;
-import android.content.Context;
 import android.content.pm.PackageManager;
-import android.location.Criteria;
 import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
 import android.os.Handler;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.telephony.PhoneNumberUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -28,22 +28,25 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 
-public class MainActivity extends FragmentActivity implements OnMapReadyCallback {
+public class MainActivity extends FragmentActivity implements OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
 
     private double latitude;
     private double longitude;
     private float accuracy;
     private float speed;
     private float bearing;
-    private LocationManager locationManager;
-    private String provider;
-    private MyLocationListener mylistener = new MyLocationListener();
-    private Criteria criteria;
+    private LocationRequest mLocationRequest;
+
+    private final static int PLAY_SERVICES_RESOLUTION_REQUEST = 1000;
 
     //map
     private GoogleMap googleMap;
     //map
 
+    //GoogleLocationAPI
+    private GoogleApiClient mGoogleApiClient;
+    private Location mLastLocation;
+    //GoogleLocationAPI
 
     //Timer
     TextView timerTextView;
@@ -69,6 +72,18 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        //GoogleLocationAPI
+        if (checkPlayServices()) {
+            buildGoogleApiClient();
+        }
+
+        // Create the LocationRequest object
+        mLocationRequest = LocationRequest.create()
+                .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
+                .setInterval(10 * 1000)        // 10 seconds, in milliseconds
+                .setFastestInterval(1 * 1000); // 1 second, in milliseconds
+
+
         //Timer
         timerTextView = (TextView) findViewById(R.id.textView_time);
         //Timer
@@ -77,27 +92,6 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
         //Map
-
-        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        criteria = new Criteria();
-        criteria.setAccuracy(Criteria.ACCURACY_COARSE);
-
-        criteria.setCostAllowed(false);
-        provider = locationManager.getBestProvider(criteria, false);
-        Location location = locationManager.getLastKnownLocation(provider);
-
-
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            return;
-        }
-        //final Location location = locationManager.requestLocationUpdates(provider, 0, 0, new MyLocationListener());
 
 
         Button buttonStart = (Button) findViewById(R.id.button_start);
@@ -115,9 +109,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                     Log.d("test", "no permission");
                     return;
                 }
-
-
-                locationManager.requestLocationUpdates(provider, 1000, 0, mylistener);
+                startLocation();
                 updateGui();
 
                 TextView textViewStart = (TextView) findViewById(R.id.textView_status);
@@ -135,17 +127,6 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                 timerHandler.removeCallbacks(timerRunnable);
                 //Timer
 
-                if (ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                    // TODO: Consider calling
-                    //    ActivityCompat#requestPermissions
-                    // here to request the missing permissions, and then overriding
-                    //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                    //                                          int[] grantResults)
-                    // to handle the case where the user grants the permission. See the documentation
-                    // for ActivityCompat#requestPermissions for more details.
-                    return;
-                }
-                locationManager.removeUpdates(mylistener);
                 TextView textViewStop = (TextView) findViewById(R.id.textView_status);
                 textViewStop.setText(R.string.stopping);
                 updateGui();
@@ -157,12 +138,26 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
             @Override
             public void onClick(View v) {
                 Log.d("test", "Refresh Button clicked");
+                onStart();
                 updateGui();
 
             }
         });
     }
 
+    private void startLocation() {
+        mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+
+        if (mLastLocation != null) {
+            this.latitude = mLastLocation.getLatitude();
+            this.longitude = mLastLocation.getLongitude();
+            this.accuracy = mLastLocation.getAccuracy();
+            this.speed = mLastLocation.getSpeed();
+            this.bearing = mLastLocation.getBearing();
+
+        }
+        updateGui();
+    }
 
     private void updateGui() {
 
@@ -178,54 +173,112 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         textViewAccuracy.setText(getString(R.string.accuracy) + " " + String.valueOf(accuracy) + "m");
         textViewSpeed.setText(getString(R.string.speed) + " " + String.valueOf(speed));
         textViewBearing.setText(getString(R.string.bearing) + " " + String.valueOf(bearing));
-        onMapReady(googleMap);
+        updateMapPosition(googleMap);
     }
 
-    //map
+
     @Override
     public void onMapReady(GoogleMap googleMap) {
         this.googleMap = googleMap;
+        updateMapPosition(googleMap);
+    }
 
-        if (latitude != 0 && longitude != 0) {
+    private void updateMapPosition(GoogleMap googleMap) {
+        if (googleMap != null && latitude != 0 && longitude != 0) {
             LatLng myPos = new LatLng(latitude, longitude);
             googleMap.addMarker(new MarkerOptions().position(myPos).title("Meine Position"));
             googleMap.moveCamera(CameraUpdateFactory.newLatLng(myPos));
-        }
-    }
-    //map
-
-    private class MyLocationListener implements LocationListener {
-
-        @Override
-        public void onLocationChanged(Location location) {
-
-            longitude = location.getLongitude();
-            latitude = location.getLatitude();
-            accuracy = location.getAccuracy();
-            speed = location.getSpeed();
-            bearing = location.getBearing();
-            updateGui();
-
-        }
-
-        @Override
-        public void onStatusChanged(String provider, int status, Bundle extras) {
-            Toast.makeText(MainActivity.this, provider + "'s status changed to " + status + "!",
-                    Toast.LENGTH_SHORT).show();
-        }
-
-        @Override
-        public void onProviderEnabled(String provider) {
-            Toast.makeText(MainActivity.this, "Provider " + provider + " enabled!",
-                    Toast.LENGTH_SHORT).show();
-
-        }
-
-        @Override
-        public void onProviderDisabled(String provider) {
-            Toast.makeText(MainActivity.this, "Provider " + provider + " disabled!",
-                    Toast.LENGTH_SHORT).show();
+            CameraUpdate zoom = CameraUpdateFactory.zoomTo(15);
+            googleMap.animateCamera(zoom);
         }
     }
 
+    @Override
+    public void onConnected(Bundle bundle) {
+
+        Location location = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+
+        LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
+
+
+        Log.d("onConnect", "Location services connected");
+        updateGui();
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+        mGoogleApiClient.connect();
+    }
+
+    @Override
+    public void onConnectionFailed(ConnectionResult connectionResult) {
+
+    }
+
+
+    /**
+     * Creating google api client object
+     */
+    protected synchronized void buildGoogleApiClient() {
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .addApi(LocationServices.API).build();
+    }
+
+    /**
+     * Method to verify google play services on the device
+     */
+    private boolean checkPlayServices() {
+        int resultCode = GooglePlayServicesUtil
+                .isGooglePlayServicesAvailable(this);
+        if (resultCode != ConnectionResult.SUCCESS) {
+            if (GooglePlayServicesUtil.isUserRecoverableError(resultCode)) {
+                GooglePlayServicesUtil.getErrorDialog(resultCode, this,
+                        PLAY_SERVICES_RESOLUTION_REQUEST).show();
+            } else {
+                Toast.makeText(getApplicationContext(),
+                        "This device is not supported.", Toast.LENGTH_LONG)
+                        .show();
+                finish();
+            }
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if (mGoogleApiClient != null) {
+            mGoogleApiClient.connect();
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mGoogleApiClient.connect();
+        checkPlayServices();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (mGoogleApiClient.isConnected()) {
+            mGoogleApiClient.disconnect();
+        }
+    }
+
+    @Override
+    public void onLocationChanged(Location location) {
+
+        this.latitude = location.getLatitude();
+        this.longitude = location.getLongitude();
+        this.accuracy = location.getAccuracy();
+        this.speed = location.getSpeed();
+        this.bearing = location.getBearing();
+
+        updateGui();
+    }
 }
