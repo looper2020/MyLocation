@@ -103,7 +103,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        DaoMaster.DevOpenHelper helper = new DaoMaster.DevOpenHelper(this,"location-db",null);
+        DaoMaster.DevOpenHelper helper = new DaoMaster.DevOpenHelper(this, "location-db", null);
         SQLiteDatabase db = helper.getWritableDatabase();
         DaoMaster daoMaster = new DaoMaster(db);
         DaoSession daoSession = daoMaster.newSession();
@@ -130,7 +130,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         //Map Fragment
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-
 
 
         final Button buttonStart = (Button) findViewById(R.id.button_start);
@@ -256,8 +255,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             case R.id.menu_save:
 
 
-
-
                 DialogFragment dialogTrack = new DialogSaveFragment();
                 Bundle args = new Bundle();
                 args.putString("title", getString(R.string.saveTrackTitle));
@@ -282,7 +279,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             LatLng myPos = new LatLng(latitude, longitude);
             googleMap.moveCamera(CameraUpdateFactory.newLatLng(myPos));
 
-            Log.d("onMapReady","aufgerufen");
+            Log.d("onMapReady", "aufgerufen");
         }
     }
 
@@ -377,14 +374,14 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     @Override
-    public void onDialogSaveSaveClick(String title,String tag) {
+    public void onDialogSaveSaveClick(String title, String tag) {
         //save the track
         Track myTrack = new Track();
         myTrack.setName(title);
         myTrack.setLogTime(new Date());
         trackDao.insertOrReplace(myTrack);
 
-        for(Marker marker: markerList){
+        for (Marker marker : markerList) {
             marker.setTrack(myTrack);
             markerDao.insertOrReplace(marker);
         }
@@ -398,18 +395,18 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if(Activity.RESULT_OK == resultCode){
+        if (Activity.RESULT_OK == resultCode) {
             googleMap.clear();
-            long trackID = data.getLongExtra("trackID",-1);
-            if(trackID == -1){
+            long trackID = data.getLongExtra("trackID", -1);
+            if (trackID == -1) {
                 return;
             }
             Track loaded = trackDao.load(trackID);
-            if(loaded == null){
+            if (loaded == null) {
                 return;
             }
             List<Marker> markers = loaded.getTrack();
-            for(Marker marker: markers){
+            for (Marker marker : markers) {
                 LatLng myPos = new LatLng(marker.getLatitude(), marker.getLongitude());
                 googleMap.addMarker(new MarkerOptions().position(myPos).title(marker.getText()));
             }
@@ -418,10 +415,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     }
 
-    private void connectMarkers(List<Marker> markers){
+    private void connectMarkers(List<Marker> markers) {
         PolylineOptions options = new PolylineOptions();
-        for(Marker marker: markers){
-            options.add(new LatLng(marker.getLatitude(),marker.getLongitude()));
+        for (Marker marker : markers) {
+            options.add(new LatLng(marker.getLatitude(), marker.getLongitude()));
         }
         googleMap.addPolyline(options);
     }
