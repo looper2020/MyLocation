@@ -390,6 +390,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         //remove Markers
         googleMap.clear();
+        markerList.clear();
     }
 
     @Override
@@ -411,7 +412,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 googleMap.addMarker(new MarkerOptions().position(myPos).title(marker.getText()));
             }
             connectMarkers(markers);
-            markerList.addAll(markers);
+
         }
     }
 
