@@ -46,7 +46,6 @@ public class DialogSaveFragment extends DialogFragment {
         final Button dialogCancelButton = (Button) view.findViewById(R.id.dialogCancel);
         final Button dialogSaveButton = (Button) view.findViewById(R.id.dialogSave);
         final EditText title = (EditText) view.findViewById(R.id.dialogTitle);
-        final EditText note = (EditText) view.findViewById(R.id.dialogNote);
 
         // following lines create button press logic and notifys listener if its called
         dialogCancelButton.setOnClickListener(new View.OnClickListener() {
@@ -60,9 +59,9 @@ public class DialogSaveFragment extends DialogFragment {
                 if (title == null || title.getText().toString().isEmpty()) {
                     Toast.makeText(getActivity(), "Please fill out Title", Toast.LENGTH_SHORT).show();
                 } else {
-                    if (note == null || note.toString().isEmpty()) {
-                        note.setText(" ");
-                    }
+//                    if (note == null || note.toString().isEmpty()) {
+//                        note.setText(" ");
+//                    }
                     dismiss();
                     dialoglistener.onDialogSaveSaveClick(title.getText().toString(), getTag());
                 }

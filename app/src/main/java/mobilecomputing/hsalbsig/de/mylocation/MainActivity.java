@@ -253,9 +253,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 startActivityForResult(intent, 1);
                 break;
 
-            //TODO Trackname
             case R.id.menu_save:
-                Toast.makeText(getApplicationContext(), "Track saved", Toast.LENGTH_LONG).show();
+
 
 
 
@@ -264,9 +263,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 args.putString("title", getString(R.string.saveTrackTitle));
                 dialogTrack.setArguments(args);
                 dialogTrack.show(getSupportFragmentManager(), "dialogSaveTrack");
-
-//                new DialogFragment().show(getSupportFragmentManager(),null);
-//                getSupportFragmentManager().executePendingTransactions();
+                Toast.makeText(getApplicationContext(), "Track saved", Toast.LENGTH_LONG).show();
                 break;
 
         }
@@ -282,9 +279,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             googleMap.setMyLocationEnabled(true);
             CameraUpdate zoom = CameraUpdateFactory.zoomTo(15);
             googleMap.animateCamera(zoom);
-
             LatLng myPos = new LatLng(latitude, longitude);
             googleMap.moveCamera(CameraUpdateFactory.newLatLng(myPos));
+
+            Log.d("onMapReady","aufgerufen");
         }
     }
 
@@ -297,6 +295,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
 
         Log.d("onConnect", "Location services connected");
+
         updateGui();
     }
 
