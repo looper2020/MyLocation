@@ -7,7 +7,7 @@
     <string name="bearing">Bearing: </string>
     <string name="start">Start</string>
     <string name="stop">Stop</string>
-    <string name="timer">logging time: </string>
+    <string name="timer">Timer: </string>
     <string name="marker">add Marker</string>
     <string name="waiting">Waiting</string>
     <string name="tracking">Tracking position</string>
