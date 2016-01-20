@@ -1,21 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 
-
-    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
-    android:orientation="horizontal"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:orientation="horizontal">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"></LinearLayout>
 
     <Button
+        android:id="@+id/button_start"
         android:layout_width="120sp"
         android:layout_height="wrap_content"
-        android:text="@string/start"
-        android:id="@+id/button_start"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
-       />
-
+        android:layout_centerVertical="true"
+        android:layout_toLeftOf="@+id/button_marker"
+        android:text="@string/start" />
+    <!--
     <Button
         android:layout_width="120sp"
         android:layout_height="wrap_content"
@@ -24,31 +31,32 @@
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
        />
-
+-->
     <Button
+        android:id="@+id/button_marker"
         android:layout_width="120sp"
         android:layout_height="wrap_content"
-        android:text="@string/refresh"
-        android:id="@+id/button_refresh"
-        android:layout_alignWithParentIfMissing="false"
-        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true" />
+        android:layout_alignParentTop="true"
+        android:layout_alignWithParentIfMissing="false"
+        android:text="@string/marker" />
 
     <FrameLayout
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_alignRight="@+id/button_refresh"
-        android:layout_alignEnd="@+id/button_refresh"
+        android:layout_alignEnd="@+id/button_marker"
+        android:layout_alignRight="@+id/button_marker"
         android:layout_below="@+id/button_start"
         android:background="#080707">
 
         <TextView
+            android:id="@+id/textView_status"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Waiting..."
-            android:id="@+id/textView_status"
             android:layout_gravity="center_horizontal"
+            android:singleLine="true"
+            android:text="Waiting"
             android:textColor="#fefdfd"
             android:textSize="30sp" />
     </FrameLayout>
@@ -56,18 +64,18 @@
     <LinearLayout
 
 
-        android:orientation="vertical"
+        android:id="@+id/linearLayout"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom"
-        android:layout_alignParentTop="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_gravity="bottom"
         android:layout_marginTop="90dp"
 
-        tools:context="mobilecomputing.hsalbsig.de.mylocation.MainActivity"
-        android:id="@+id/linearLayout"
-        android:weightSum="1">
+        android:orientation="vertical"
+        android:weightSum="1"
+        tools:context="mobilecomputing.hsalbsig.de.mylocation.MainActivity">
 
         <TextView
             android:id="@+id/textView_latitude"
@@ -105,12 +113,12 @@
             android:textSize="20sp" />
 
         <TextView
+            android:id="@+id/textView_time"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:layout_marginTop="15dp"
             android:text="@string/timer"
-            android:id="@+id/textView_time"
-            android:layout_marginTop="15dp" />
+            android:textAppearance="?android:attr/textAppearanceLarge" />
 
 
     </LinearLayout>
