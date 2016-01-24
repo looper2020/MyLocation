@@ -5,15 +5,11 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.sqlite.SQLiteDatabase;
-import android.graphics.Point;
 import android.location.Location;
 import android.os.Handler;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.DialogFragment;
-import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.ContextMenu;
@@ -44,12 +40,14 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+
 import mobilecomputing.hsalbsig.de.mylocation.dao.DaoMaster;
 import mobilecomputing.hsalbsig.de.mylocation.dao.DaoSession;
 import mobilecomputing.hsalbsig.de.mylocation.dao.Marker;
 import mobilecomputing.hsalbsig.de.mylocation.dao.MarkerDao;
 import mobilecomputing.hsalbsig.de.mylocation.dao.Track;
 import mobilecomputing.hsalbsig.de.mylocation.dao.TrackDao;
+import mobilecomputing.hsalbsig.de.mylocation.db.DBActivity;
 import mobilecomputing.hsalbsig.de.mylocation.dialogs.DialogSaveFragment;
 
 public class MainActivity extends AppCompatActivity implements OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener, DialogSaveFragment.DialogSaveListener {
@@ -98,6 +96,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     };
 
 
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -114,13 +114,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         //GoogleLocationAPI
         if (checkPlayServices()) {
             buildGoogleApiClient();
+            Log.d("Test", "GoogleLocationAPI called");
         }
 
-        // Create the LocationRequest object
-        mLocationRequest = LocationRequest.create()
-                .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
-                .setInterval(10 * 1000)        // 10 seconds, in milliseconds
-                .setFastestInterval(1 * 1000); // 1 second, in milliseconds
+
+
 
 
         //Timer
@@ -136,9 +134,12 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         buttonStart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.d("test", "Start Button clicked");
+                Log.d("Test", "Start Button clicked");
+
 
                 if (isTracking == false) {
+                    connectToGoogleMap();
+
                     Toast.makeText(getApplicationContext(), "Tracking Started!", Toast.LENGTH_LONG).show();
                     isTracking = true;
 
@@ -147,14 +148,13 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     //Timer
                     startTime = System.currentTimeMillis();
                     timerHandler.postDelayed(timerRunnable, 0);
-                    //Timer
+
 
                     if (ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                        Log.d("test", "no permission");
+                        Log.d("Test", "no permission");
                         return;
                     }
                     startLocation();
-                    updateGui();
 
                     TextView textViewStart = (TextView) findViewById(R.id.textView_status);
                     textViewStart.setText(R.string.tracking);
@@ -169,11 +169,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         buttonMarker.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.d("test", "Marker Button clicked");
-                //    onStart();
+                Log.d("Test", "Marker Button clicked");
                 LatLng myPos = new LatLng(latitude, longitude);
                 googleMap.addMarker(new MarkerOptions().position(myPos).title("Meine Position"));
-                updateGui();
                 Marker marker = new Marker();
                 marker.setLatitude(latitude);
                 marker.setLongitude(longitude);
@@ -211,19 +209,19 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     private void stopTracking() {
-        Log.d("test", "Stop Button clicked");
+        Log.d("Test", "Stop Button clicked");
         if (isTracking == true) {
             Toast.makeText(getApplicationContext(), "Tracking Stopped!", Toast.LENGTH_LONG).show();
             isTracking = false;
+
             //Timer
             timerHandler.removeCallbacks(timerRunnable);
-            //Timer
 
-            onPause();
+
+            disconnectFromGoogleMap();
 
             final Button buttonStart = (Button) findViewById(R.id.button_start);
             buttonStart.setText(R.string.start);
-            updateGui();
         }
     }
 
@@ -279,26 +277,28 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             LatLng myPos = new LatLng(latitude, longitude);
             googleMap.moveCamera(CameraUpdateFactory.newLatLng(myPos));
 
-            Log.d("onMapReady", "aufgerufen");
+            Log.d("Test", "onMapReady called");
         }
     }
 
     @Override
     public void onConnected(Bundle bundle) {
 
-        Location location = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+        // Create the LocationRequest object
+        mLocationRequest = LocationRequest.create()
+                .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
+                .setInterval(10 * 1000)        // 10 seconds, in milliseconds
+                .setFastestInterval(10 * 1000); // 1 second, in milliseconds
+        if(mGoogleApiClient.isConnected()) {
+            LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, MainActivity.this);
+        }
+        Log.d("Test", "onConnect called Location services connected");
 
-        LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
-
-
-        Log.d("onConnect", "Location services connected");
-
-        updateGui();
     }
 
     @Override
     public void onConnectionSuspended(int i) {
-        mGoogleApiClient.connect();
+
     }
 
     @Override
@@ -341,22 +341,29 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Override
     protected void onStart() {
         super.onStart();
-        if (mGoogleApiClient != null) {
-            mGoogleApiClient.connect();
-        }
+        connectToGoogleMap();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        mGoogleApiClient.connect();
-        checkPlayServices();
+    }
+
+    private void connectToGoogleMap(){
+        if(mGoogleApiClient != null && !mGoogleApiClient.isConnected()) {
+            mGoogleApiClient.connect();
+            checkPlayServices();
+        }
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        if (mGoogleApiClient.isConnected()) {
+        disconnectFromGoogleMap();
+    }
+
+    private void disconnectFromGoogleMap(){
+        if (mGoogleApiClient != null && mGoogleApiClient.isConnected()) {
             mGoogleApiClient.disconnect();
         }
     }
@@ -364,13 +371,25 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Override
     public void onLocationChanged(Location location) {
 
+        Log.d("Test", "onLocationChanged called");
+
         this.latitude = location.getLatitude();
         this.longitude = location.getLongitude();
         this.accuracy = location.getAccuracy();
         this.speed = location.getSpeed();
         this.bearing = location.getBearing();
-
         updateGui();
+
+        placeWaypoint();
+    }
+
+    private void placeWaypoint() {
+        LatLng myPos = new LatLng(latitude, longitude);
+        googleMap.addMarker(new MarkerOptions().position(myPos).title("Meine Position"));
+        Marker marker = new Marker();
+        marker.setLatitude(latitude);
+        marker.setLongitude(longitude);
+        markerList.add(marker);
     }
 
     @Override

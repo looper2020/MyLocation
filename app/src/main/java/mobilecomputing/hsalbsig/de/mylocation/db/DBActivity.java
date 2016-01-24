@@ -1,4 +1,4 @@
-package mobilecomputing.hsalbsig.de.mylocation;
+package mobilecomputing.hsalbsig.de.mylocation.db;
 
 import android.app.Activity;
 import android.content.Intent;
