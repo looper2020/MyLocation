@@ -59,7 +59,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private float bearing;
     private LocationRequest mLocationRequest;
     private boolean isTracking = false;
-    private Location currentLocation;
 
     private final static int PLAY_SERVICES_RESOLUTION_REQUEST = 1000;
 
@@ -96,8 +95,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     };
 
 
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -116,9 +113,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             buildGoogleApiClient();
             Log.d("Test", "GoogleLocationAPI called");
         }
-
-
-
 
 
         //Timer
@@ -161,6 +155,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     buttonStart.setText(R.string.stop);
                 } else {
                     stopTracking();
+                    openSaveDialog();
                 }
             }
         });
@@ -253,12 +248,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             case R.id.menu_save:
 
 
-                DialogFragment dialogTrack = new DialogSaveFragment();
-                Bundle args = new Bundle();
-                args.putString("title", getString(R.string.saveTrackTitle));
-                dialogTrack.setArguments(args);
-                dialogTrack.show(getSupportFragmentManager(), "dialogSaveTrack");
-                Toast.makeText(getApplicationContext(), "Track saved", Toast.LENGTH_LONG).show();
+                openSaveDialog();
                 break;
 
         }
@@ -289,7 +279,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
                 .setInterval(10 * 1000)        // 10 seconds, in milliseconds
                 .setFastestInterval(10 * 1000); // 1 second, in milliseconds
-        if(mGoogleApiClient.isConnected()) {
+        if (mGoogleApiClient.isConnected()) {
             LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, MainActivity.this);
         }
         Log.d("Test", "onConnect called Location services connected");
@@ -349,8 +339,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         super.onResume();
     }
 
-    private void connectToGoogleMap(){
-        if(mGoogleApiClient != null && !mGoogleApiClient.isConnected()) {
+    private void connectToGoogleMap() {
+        if (mGoogleApiClient != null && !mGoogleApiClient.isConnected()) {
             mGoogleApiClient.connect();
             checkPlayServices();
         }
@@ -362,7 +352,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         disconnectFromGoogleMap();
     }
 
-    private void disconnectFromGoogleMap(){
+    private void disconnectFromGoogleMap() {
         if (mGoogleApiClient != null && mGoogleApiClient.isConnected()) {
             mGoogleApiClient.disconnect();
         }
@@ -392,6 +382,16 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         markerList.add(marker);
     }
 
+
+    public void openSaveDialog() {
+        DialogFragment dialogTrack = new DialogSaveFragment();
+        Bundle args = new Bundle();
+        args.putString("title", getString(R.string.saveTrackTitle));
+        dialogTrack.setArguments(args);
+        dialogTrack.show(getSupportFragmentManager(), "dialogSaveTrack");
+        Toast.makeText(getApplicationContext(), "Track saved", Toast.LENGTH_LONG).show();
+    }
+
     @Override
     public void onDialogSaveSaveClick(String title, String tag) {
         //save the track
@@ -411,6 +411,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         googleMap.clear();
         markerList.clear();
     }
+
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
