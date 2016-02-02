@@ -2,6 +2,7 @@ package mobilecomputing.hsalbsig.de.mylocation;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.Dialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.sqlite.SQLiteDatabase;
@@ -100,79 +101,89 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        DaoMaster.DevOpenHelper helper = new DaoMaster.DevOpenHelper(this, "location-db", null);
-        SQLiteDatabase db = helper.getWritableDatabase();
-        DaoMaster daoMaster = new DaoMaster(db);
-        DaoSession daoSession = daoMaster.newSession();
+        //Availability status check
+        int status = GooglePlayServicesUtil.isGooglePlayServicesAvailable(getBaseContext());
 
-        markerDao = daoSession.getMarkerDao();
-        trackDao = daoSession.getTrackDao();
-
-        //GoogleLocationAPI
-        if (checkPlayServices()) {
-            buildGoogleApiClient();
-            Log.d("Test", "GoogleLocationAPI called");
-        }
+        if(status!=ConnectionResult.SUCCESS){
+            Dialog dialog = GooglePlayServicesUtil.getErrorDialog(status,this, 10);
+            dialog.show();
+        } else {
 
 
-        //Timer
-        timerTextView = (TextView) findViewById(R.id.textView_time);
+            DaoMaster.DevOpenHelper helper = new DaoMaster.DevOpenHelper(this, "location-db", null);
+            SQLiteDatabase db = helper.getWritableDatabase();
+            DaoMaster daoMaster = new DaoMaster(db);
+            DaoSession daoSession = daoMaster.newSession();
+
+            markerDao = daoSession.getMarkerDao();
+            trackDao = daoSession.getTrackDao();
+
+            //GoogleLocationAPI
+            if (checkPlayServices()) {
+                buildGoogleApiClient();
+                Log.d("Test", "GoogleLocationAPI called");
+            }
 
 
-        //Map Fragment
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
-        mapFragment.getMapAsync(this);
+            //Timer
+            timerTextView = (TextView) findViewById(R.id.textView_time);
 
 
-        final Button buttonStart = (Button) findViewById(R.id.button_start);
-        buttonStart.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Log.d("Test", "Start Button clicked");
+            //Map Fragment
+            SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
+            mapFragment.getMapAsync(this);
 
 
-                if (isTracking == false) {
-                    connectToGoogleMap();
-
-                    Toast.makeText(getApplicationContext(), "Tracking Started!", Toast.LENGTH_LONG).show();
-                    isTracking = true;
-
-                    onResume();
-
-                    //Timer
-                    startTime = System.currentTimeMillis();
-                    timerHandler.postDelayed(timerRunnable, 0);
+            final Button buttonStart = (Button) findViewById(R.id.button_start);
+            buttonStart.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Log.d("Test", "Start Button clicked");
 
 
-                    if (ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                        Log.d("Test", "no permission");
-                        return;
+                    if (isTracking == false) {
+                        connectToGoogleMap();
+
+                        Toast.makeText(getApplicationContext(), "Tracking Started!", Toast.LENGTH_LONG).show();
+                        isTracking = true;
+
+                        onResume();
+
+                        //Timer
+                        startTime = System.currentTimeMillis();
+                        timerHandler.postDelayed(timerRunnable, 0);
+
+
+                        if (ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                            Log.d("Test", "no permission");
+                            return;
+                        }
+                        startLocation();
+
+                        TextView textViewStart = (TextView) findViewById(R.id.textView_status);
+                        textViewStart.setText(R.string.tracking);
+                        buttonStart.setText(R.string.stop);
+                    } else {
+                        stopTracking();
+                        openSaveDialog();
                     }
-                    startLocation();
-
-                    TextView textViewStart = (TextView) findViewById(R.id.textView_status);
-                    textViewStart.setText(R.string.tracking);
-                    buttonStart.setText(R.string.stop);
-                } else {
-                    stopTracking();
-                    openSaveDialog();
                 }
-            }
-        });
+            });
 
-        Button buttonMarker = (Button) findViewById(R.id.button_marker);
-        buttonMarker.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Log.d("Test", "Marker Button clicked");
-                LatLng myPos = new LatLng(latitude, longitude);
-                googleMap.addMarker(new MarkerOptions().position(myPos).title("Meine Position"));
-                Marker marker = new Marker();
-                marker.setLatitude(latitude);
-                marker.setLongitude(longitude);
-                markerList.add(marker);
-            }
-        });
+            Button buttonMarker = (Button) findViewById(R.id.button_marker);
+            buttonMarker.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Log.d("Test", "Marker Button clicked");
+                    LatLng myPos = new LatLng(latitude, longitude);
+                    googleMap.addMarker(new MarkerOptions().position(myPos).title("Meine Position"));
+                    Marker marker = new Marker();
+                    marker.setLatitude(latitude);
+                    marker.setLongitude(longitude);
+                    markerList.add(marker);
+                }
+            });
+        }
     }
 
     @Override
@@ -443,4 +454,5 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
         googleMap.addPolyline(options);
     }
+
 }
