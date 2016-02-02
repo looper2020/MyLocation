@@ -1,0 +1,29 @@
+<resources>
+    <string name="app_name">Mein Standort</string>
+    <string name="latitude">Breitengrad: </string>
+    <string name="longitude">Längengrad: </string>
+    <string name="accuracy">Genauigkeit: </string>
+    <string name="speed">Geschwindigkei: </string>
+    <string name="bearing">Bearing: </string>
+    <string name="start">Start</string>
+    <string name="stop">Stop</string>
+    <string name="timer">Timer: </string>
+    <string name="marker">Markierung hizufügen</string>
+    <string name="waiting">Warten</string>
+    <string name="tracking">Tracking Position</string>
+    <string name="stopping">Tracking angehalten</string>
+
+    <string name="database">Datenbankprotokoll</string>
+    <string name="save">Track speichern</string>
+    <string name="databaseHeader">Datenbank Einträge</string>
+
+
+    <string name="delete">Löschen</string>
+    <string name="cancel">Beenden</string>
+    <string name="title">Titel</string>
+    <string name="note">Notize</string>
+    <string name="action_settings">Einstellungen</string>
+    <string name="welcome">Test</string>
+
+    <string name="saveTrackTitle">Letzen Track speichern</string>
+</resources>
