@@ -146,6 +146,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 @Override
                 public void onClick(View v) {
                     Log.d("Test", "Start Button clicked");
+                    googleMap.clear();
 
 
                     if (isTracking == false) {
