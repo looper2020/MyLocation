@@ -15,12 +15,13 @@
     <Button
         android:id="@+id/button_start"
         android:layout_width="10sp"
-        android:layout_height="wrap_content"
+        android:layout_height="40sp"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
         android:layout_centerVertical="true"
-        android:layout_toLeftOf="@+id/button_marker"
+        android:layout_toLeftOf="@+id/editText_intervalTime"
+        android:textSize="15sp"
         android:text="@string/start" />
     <!--
     <Button
@@ -32,21 +33,33 @@
         android:layout_centerHorizontal="true"
        />
 -->
+
+    <EditText
+        android:id="@+id/editText_intervalTime"
+        android:layout_width="60sp"
+        android:layout_height="40sp"
+        android:layout_alignParentTop="true"
+        android:layout_toLeftOf="@+id/button_intervalTime"
+        android:ems="10"
+        android:inputType="numberDecimal"
+        />
+
     <Button
-        android:id="@+id/button_marker"
+        android:id="@+id/button_intervalTime"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="40sp"
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentTop="true"
         android:layout_alignWithParentIfMissing="false"
+        android:textSize="15sp"
         android:text="@string/marker" />
 
     <FrameLayout
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_alignEnd="@+id/button_marker"
-        android:layout_alignRight="@+id/button_marker"
+        android:layout_alignEnd="@+id/button_intervalTime"
+        android:layout_alignRight="@+id/button_intervalTime"
         android:layout_below="@+id/button_start"
         android:background="#080707">
 
@@ -58,7 +71,7 @@
             android:singleLine="true"
             android:text="Waiting"
             android:textColor="#fefdfd"
-            android:textSize="30sp" />
+            android:textSize="20sp" />
     </FrameLayout>
 
     <LinearLayout
@@ -82,35 +95,35 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/latitude"
-            android:textSize="20sp" />
+            android:textSize="15sp" />
 
         <TextView
             android:id="@+id/textView_longitude"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:text="@string/longitude"
-            android:textSize="20sp" />
+            android:textSize="15sp" />
 
         <TextView
             android:id="@+id/textView_accuracy"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:text="@string/accuracy"
-            android:textSize="20sp" />
+            android:textSize="15sp" />
 
         <TextView
             android:id="@+id/textView_speed"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:text="@string/speed"
-            android:textSize="20sp" />
+            android:textSize="15sp" />
 
         <TextView
             android:id="@+id/textView_bearing"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:text="@string/bearing"
-            android:textSize="20sp" />
+            android:textSize="15sp" />
 
         <TextView
             android:id="@+id/textView_time"
@@ -118,7 +131,10 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp"
             android:text="@string/timer"
+            android:textSize="20sp"
             android:textAppearance="?android:attr/textAppearanceLarge" />
+
+
 
 
     </LinearLayout>

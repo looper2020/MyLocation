@@ -60,9 +60,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private float bearing;
     private LocationRequest mLocationRequest;
     private boolean isTracking = false;
+    private int intevalTime = 10;
 
     private final static int PLAY_SERVICES_RESOLUTION_REQUEST = 1000;
 
+    
 
     //map
     private GoogleMap googleMap;
@@ -170,11 +172,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 }
             });
 
-            Button buttonMarker = (Button) findViewById(R.id.button_marker);
+            Button buttonMarker = (Button) findViewById(R.id.button_intervalTime);
             buttonMarker.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Log.d("Test", "Marker Button clicked");
+                    Log.d("Test", "Interval Button clicked");
                     LatLng myPos = new LatLng(latitude, longitude);
                     googleMap.addMarker(new MarkerOptions().position(myPos).title("Meine Position"));
                     Marker marker = new Marker();
@@ -282,14 +284,23 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     }
 
+    public void setIntervalTime(int intervalTime){
+        if(intervalTime >0 && intervalTime < 60){
+            this.intevalTime = intervalTime;
+        } else{
+            Toast.makeText(getApplicationContext(), intervalTime + " ist keine erlaubte Zahl", Toast.LENGTH_LONG).show();
+            Log.d("Test", intervalTime + " ist keine erlaubte Zahl");
+        }
+    }
+
     @Override
     public void onConnected(Bundle bundle) {
 
         // Create the LocationRequest object
         mLocationRequest = LocationRequest.create()
                 .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
-                .setInterval(10 * 1000)        // 10 seconds, in milliseconds
-                .setFastestInterval(10 * 1000); // 1 second, in milliseconds
+                .setInterval(this.intevalTime * 1000)        // 10 seconds, in milliseconds
+                .setFastestInterval(this.intevalTime * 1000); // 10 second, in milliseconds
         if (mGoogleApiClient.isConnected()) {
             LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, MainActivity.this);
         }
