@@ -19,6 +19,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -60,11 +61,12 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private float bearing;
     private LocationRequest mLocationRequest;
     private boolean isTracking = false;
-    private int intevalTime = 10;
+    public int intervalTime = 10;
+    public EditText editTextInterval;
 
     private final static int PLAY_SERVICES_RESOLUTION_REQUEST = 1000;
 
-    
+
 
     //map
     private GoogleMap googleMap;
@@ -102,6 +104,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        //IntervalTime ext
+        editTextInterval = (EditText)findViewById(R.id.editText_intervalTime);
 
         //Availability status check
         int status = GooglePlayServicesUtil.isGooglePlayServicesAvailable(getBaseContext());
@@ -177,12 +182,17 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 @Override
                 public void onClick(View v) {
                     Log.d("Test", "Interval Button clicked");
-                    LatLng myPos = new LatLng(latitude, longitude);
-                    googleMap.addMarker(new MarkerOptions().position(myPos).title("Meine Position"));
-                    Marker marker = new Marker();
-                    marker.setLatitude(latitude);
-                    marker.setLongitude(longitude);
-                    markerList.add(marker);
+                    if(editTextInterval.getText().toString().equals("")){
+                        Toast.makeText(getApplicationContext(), "Bitte eine Zahl zwischen 1 und 59 eintragen", Toast.LENGTH_LONG).show();
+                        Log.d("Test", "Button intervalTime gedrückt und im if Zweick zum Leezeichenpruefung gelandet");
+                    }else if(isTracking == true){
+                        Toast.makeText(getApplicationContext(), "Track läuft gerade, Änderung nicht möglich", Toast.LENGTH_LONG).show();
+                        Log.d("Test", "Button intervalTime gedrückt und im if Zweick ifTracking gelandet");
+                        editTextInterval.setText(String.valueOf(intervalTime));
+                    }else{
+                        intervalTime = Integer.parseInt(editTextInterval.getText().toString());
+                        editTextInterval.setText(String.valueOf(setIntervalTime(intervalTime)));
+                    }
                 }
             });
         }
@@ -284,13 +294,14 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     }
 
-    public void setIntervalTime(int intervalTime){
+    public int setIntervalTime(int intervalTime){
         if(intervalTime >0 && intervalTime < 60){
-            this.intevalTime = intervalTime;
+            this.intervalTime = intervalTime;
         } else{
             Toast.makeText(getApplicationContext(), intervalTime + " ist keine erlaubte Zahl", Toast.LENGTH_LONG).show();
             Log.d("Test", intervalTime + " ist keine erlaubte Zahl");
         }
+        return this.intervalTime;
     }
 
     @Override
@@ -299,8 +310,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         // Create the LocationRequest object
         mLocationRequest = LocationRequest.create()
                 .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
-                .setInterval(this.intevalTime * 1000)        // 10 seconds, in milliseconds
-                .setFastestInterval(this.intevalTime * 1000); // 10 second, in milliseconds
+                .setInterval(this.intervalTime * 1000)        // 10 seconds, in milliseconds
+                .setFastestInterval(this.intervalTime * 1000); // 10 second, in milliseconds
         if (mGoogleApiClient.isConnected()) {
             LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, MainActivity.this);
         }
