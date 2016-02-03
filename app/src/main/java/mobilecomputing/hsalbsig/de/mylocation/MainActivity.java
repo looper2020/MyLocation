@@ -2,6 +2,7 @@ package mobilecomputing.hsalbsig.de.mylocation;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -52,7 +53,10 @@ import mobilecomputing.hsalbsig.de.mylocation.dao.TrackDao;
 import mobilecomputing.hsalbsig.de.mylocation.db.DBActivity;
 import mobilecomputing.hsalbsig.de.mylocation.dialogs.DialogSaveFragment;
 
-public class MainActivity extends AppCompatActivity implements OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener, DialogSaveFragment.DialogSaveListener {
+public class MainActivity extends AppCompatActivity implements OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener, DialogSaveFragment.DialogSaveListener, View.OnClickListener {
+
+    //
+    public Button button_start, button_intervalTime;
 
     private double latitude;
     private double longitude;
@@ -105,6 +109,15 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        this.button_start = (Button)findViewById(R.id.button_start);
+        this.button_intervalTime = (Button)findViewById(R.id.button_intervalTime);
+
+        button_start.setOnClickListener(this);
+        this.button_intervalTime.setOnClickListener(this);
+
+
+
+
         //IntervalTime ext
         editTextInterval = (EditText)findViewById(R.id.editText_intervalTime);
 
@@ -112,7 +125,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         int status = GooglePlayServicesUtil.isGooglePlayServicesAvailable(getBaseContext());
 
         if(status!=ConnectionResult.SUCCESS){
-            Dialog dialog = GooglePlayServicesUtil.getErrorDialog(status,this, 10);
+            Dialog dialog = GooglePlayServicesUtil.getErrorDialog(status, this, 10);
             dialog.show();
         } else {
 
@@ -141,61 +154,43 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             mapFragment.getMapAsync(this);
 
 
-            final Button buttonStart = (Button) findViewById(R.id.button_start);
-            buttonStart.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Log.d("Test", "Start Button clicked");
-                    googleMap.clear();
+//            final Button buttonStart = (Button) findViewById(R.id.button_start);
+//            buttonStart.setOnClickListener(new View.OnClickListener() {
+//                @Override
+//                public void onClick(View v) {
+//                    Log.d("Test", "Start Button clicked");
+//                    googleMap.clear();
+//
+//
+//                    if (isTracking == false) {
+//                        connectToGoogleMap();
+//
+//                        Toast.makeText(getApplicationContext(), "Tracking Started!", Toast.LENGTH_LONG).show();
+//                        isTracking = true;
+//
+////                        onResume();
+//
+//                        //Timer
+//                        startTime = System.currentTimeMillis();
+//                        timerHandler.postDelayed(timerRunnable, 0);
+//
+//
+//                        if (ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+//                            Log.d("Test", "no permission");
+//                            return;
+//                        }
+//                        startLocation();
+//
+//                        TextView textViewStart = (TextView) findViewById(R.id.textView_status);
+//                        textViewStart.setText(R.string.tracking);
+//                        buttonStart.setText(R.string.stop);
+//                    } else {
+//                        stopTracking();
+//                        openSaveDialog();
+//                    }
+//                }
+//            });
 
-
-                    if (isTracking == false) {
-                        connectToGoogleMap();
-
-                        Toast.makeText(getApplicationContext(), "Tracking Started!", Toast.LENGTH_LONG).show();
-                        isTracking = true;
-
-                        onResume();
-
-                        //Timer
-                        startTime = System.currentTimeMillis();
-                        timerHandler.postDelayed(timerRunnable, 0);
-
-
-                        if (ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                            Log.d("Test", "no permission");
-                            return;
-                        }
-                        startLocation();
-
-                        TextView textViewStart = (TextView) findViewById(R.id.textView_status);
-                        textViewStart.setText(R.string.tracking);
-                        buttonStart.setText(R.string.stop);
-                    } else {
-                        stopTracking();
-                        openSaveDialog();
-                    }
-                }
-            });
-
-            Button buttonMarker = (Button) findViewById(R.id.button_intervalTime);
-            buttonMarker.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Log.d("Test", "Interval Button clicked");
-                    if(editTextInterval.getText().toString().equals("")){
-                        Toast.makeText(getApplicationContext(), "Bitte eine Zahl zwischen 1 und 59 eintragen", Toast.LENGTH_LONG).show();
-                        Log.d("Test", "Button intervalTime gedrückt und im if Zweick zum Leezeichenpruefung gelandet");
-                    }else if(isTracking == true){
-                        Toast.makeText(getApplicationContext(), "Track läuft gerade, Änderung nicht möglich", Toast.LENGTH_LONG).show();
-                        Log.d("Test", "Button intervalTime gedrückt und im if Zweick ifTracking gelandet");
-                        editTextInterval.setText(String.valueOf(intervalTime));
-                    }else{
-                        intervalTime = Integer.parseInt(editTextInterval.getText().toString());
-                        editTextInterval.setText(String.valueOf(setIntervalTime(intervalTime)));
-                    }
-                }
-            });
         }
     }
 
@@ -295,15 +290,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     }
 
-    public int setIntervalTime(int intervalTime){
-        if(intervalTime >0 && intervalTime < 60){
-            this.intervalTime = intervalTime;
-        } else{
-            Toast.makeText(getApplicationContext(), intervalTime + " ist keine erlaubte Zahl", Toast.LENGTH_LONG).show();
-            Log.d("Test", intervalTime + " ist keine erlaubte Zahl");
-        }
-        return this.intervalTime;
-    }
+
 
     @Override
     public void onConnected(Bundle bundle) {
@@ -478,4 +465,41 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         googleMap.addPolyline(options);
     }
 
+
+//    Hier wird das klick Event abgefangen und geprüft, welcher Button gedrückt wurde!!!
+    @Override       
+    public void onClick(View v) {
+        if(v == button_start){
+            Toast.makeText(getApplicationContext(), "onClick Methode Start Button geklickt", Toast.LENGTH_LONG).show();
+        }else if(v == button_intervalTime){
+            if(editTextInterval.getText().toString().equals("")){
+                AlertDialog alertNoIntervalTime = new AlertDialog.Builder(this).create();
+                alertNoIntervalTime.setMessage("Bitte eine Zahl zwischen 1 und 60 eintragen");
+                alertNoIntervalTime.show();
+                editTextInterval.setText(String.valueOf(this.intervalTime));
+            }else if(isTracking == true){
+                Toast.makeText(getApplicationContext(), "Track läuft gerade, Änderung nicht möglich", Toast.LENGTH_LONG).show();
+                Log.d("Test", "Button intervalTime gedrückt und im if Zweick ifTracking gelandet");
+                editTextInterval.setText(String.valueOf(intervalTime));
+            }else{
+                intervalTime = Integer.parseInt(editTextInterval.getText().toString());
+                editTextInterval.setText(String.valueOf(setIntervalTime(intervalTime)));
+            }
+        }else
+            Toast.makeText(getApplicationContext(), "Im onClick event stimmt was nicht", Toast.LENGTH_LONG).show();
+    }
+
+
+
+    public int setIntervalTime(int intervalTime){
+        if(intervalTime >0 && intervalTime < 60){
+            this.intervalTime = intervalTime;
+        } else{
+            AlertDialog alertNoIntervalTime = new AlertDialog.Builder(this).create();
+            alertNoIntervalTime.setMessage("Bitte eine Zahl zwischen 1 und 60 eintragen");
+            alertNoIntervalTime.show();
+            editTextInterval.setText(String.valueOf(this.intervalTime));
+        }
+        return this.intervalTime;
+    }
 }
