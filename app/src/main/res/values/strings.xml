@@ -13,7 +13,7 @@
     <string name="tracking">Tracking position</string>
     <string name="stopping">Tracking stopped</string>
 
-    <string name="database">Database Log</string>
+    <string name="database">DB Log</string>
     <string name="deleteDB">Delete DB</string>
     <string name="save">Save</string>
     <string name="databaseHeader">Database Entries</string>
