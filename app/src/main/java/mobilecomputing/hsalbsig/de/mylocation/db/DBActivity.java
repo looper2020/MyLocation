@@ -1,6 +1,7 @@
 package mobilecomputing.hsalbsig.de.mylocation.db;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.database.sqlite.SQLiteDatabase;
@@ -20,6 +21,7 @@ import android.widget.ListView;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.content.DialogInterface;
 
 import com.google.android.gms.identity.intents.AddressConstants;
 
@@ -66,9 +68,30 @@ public class DBActivity extends AppCompatActivity{
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                     Track track = adapter.getItem(position);
                     Intent intent = new Intent();
-                    intent.putExtra("trackID",track.getId());
-                    setResult(Activity.RESULT_OK,intent);
+                    intent.putExtra("trackID", track.getId());
+                    setResult(Activity.RESULT_OK, intent);
                     finish();
+                }
+            });
+            view.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+                @Override
+                public boolean onItemLongClick(AdapterView<?> arg0, View arg1,
+                                               int pos, long id) {
+
+                    Log.v("long clicked","pos: " + pos);
+                    Track track = adapter.getItem(pos);
+                    Log.v("track selected", "track: " + track.getName());
+
+                    DialogInterface.OnClickListener dialogClickListener = new CustomDialogListener(track, (DBActivity)view.getContext());
+
+
+                    AlertDialog.Builder builder = new AlertDialog.Builder(view.getContext());
+                    builder.setMessage("Delete track: " + "" + track.getName()).setPositiveButton(R.string.yes, dialogClickListener)
+                            .setNegativeButton(R.string.no, dialogClickListener).show();
+
+
+
+                    return true;
                 }
             });
         }
@@ -84,7 +107,6 @@ public class DBActivity extends AppCompatActivity{
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-
         switch (item.getItemId()) {
             case android.R.id.home:
                 onBackPressed();
@@ -93,5 +115,30 @@ public class DBActivity extends AppCompatActivity{
                 return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    class CustomDialogListener implements DialogInterface.OnClickListener{
+        Track track = null;
+        DBActivity actvt = null;
+        public CustomDialogListener(Track track, DBActivity actvt){
+            this.track = track;
+            this.actvt = actvt;
+        }
+
+        @Override
+        public void onClick(DialogInterface dialog, int which) {
+            switch (which){
+                case DialogInterface.BUTTON_POSITIVE:
+                    Log.v("track: ", track.getName() + " deleted!");
+                    track.delete();
+                    actvt.finish();
+                    actvt.startActivity(getIntent());
+                    break;
+
+                case DialogInterface.BUTTON_NEGATIVE:
+                    Log.v("track: ", track.getName() + " not deleted!");
+                    break;
+            }
+        }
     }
 }
