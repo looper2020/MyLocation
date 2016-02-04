@@ -23,22 +23,13 @@
         android:layout_toLeftOf="@+id/editText_intervalTime"
         android:textSize="15sp"
         android:text="@string/start" />
-    <!--
-    <Button
-        android:layout_width="120sp"
-        android:layout_height="wrap_content"
-        android:text="@string/stop"
-        android:id="@+id/button_stop"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-       />
--->
 
     <EditText
         android:id="@+id/editText_intervalTime"
-        android:layout_width="60sp"
+        android:layout_width="40sp"
         android:layout_height="40sp"
         android:layout_alignParentTop="true"
+        android:text="10"
         android:layout_toLeftOf="@+id/button_intervalTime"
         android:ems="10"
         android:inputType="numberDecimal"
