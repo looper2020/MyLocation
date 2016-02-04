@@ -239,10 +239,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     @Override
     public void onConnected(Bundle bundle) {
-    }
-
-
-    public void updateTimer() {
         // Create the LocationRequest object
         mLocationRequest = LocationRequest.create()
                 .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
@@ -254,7 +250,25 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
             LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, MainActivity.this);
         }
+    }
+
+
+    //Diese Methode war Schuld xD
+    public void updateTimer() {
+        // Create the LocationRequest object
+        /*
+        mLocationRequest = LocationRequest.create()
+                .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
+                .setInterval(this.intervalTime * 1000)        // 10 seconds, in milliseconds
+                .setFastestInterval(this.intervalTime * 1000); // 10 second, in milliseconds
+        if (mGoogleApiClient.isConnected()) {
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                return;
+            }
+            LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, MainActivity.this);
+        }
         Log.d("Test", "onConnect called Location services connected");
+        */
     }
 
     @Override
@@ -299,28 +313,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         return true;
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-        connectToGoogleMap();
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-    }
-
     private void connectToGoogleMap() {
         if (mGoogleApiClient != null && !mGoogleApiClient.isConnected()) {
             mGoogleApiClient.connect();
             checkPlayServices();
         }
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        disconnectFromGoogleMap();
     }
 
     private void disconnectFromGoogleMap() {
@@ -431,7 +428,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 this.progressBar.setVisibility(View.VISIBLE);
                 Toast.makeText(getApplicationContext(), "Tracking Started!", Toast.LENGTH_LONG).show();
                 isTracking = true;
-                updateTimer();
+                //updateTimer();
 
                 //Timer
                 startTime = System.currentTimeMillis();
