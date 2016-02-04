@@ -46,6 +46,35 @@
         android:textSize="15sp"
         android:text="@string/marker" />
 
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#080707"
+        android:layout_below="@+id/button_intervalTime">
+
+        <TextView
+            android:id="@+id/textView_status"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:singleLine="true"
+            android:text="Waiting"
+            android:textColor="#fefdfd"
+            android:textSize="20sp"
+            android:layout_centerVertical="true"
+            android:layout_centerHorizontal="true" />
+
+        <ProgressBar
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/progressBar"
+            android:layout_gravity="center_vertical|right"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true" />
+
+    </RelativeLayout>
+<!--
     <FrameLayout
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
@@ -58,13 +87,21 @@
             android:id="@+id/textView_status"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
+            android:layout_gravity="center"
             android:singleLine="true"
             android:text="Waiting"
             android:textColor="#fefdfd"
             android:textSize="20sp" />
-    </FrameLayout>
 
+        <ProgressBar
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/progressBar"
+            android:layout_gravity="center_vertical|right"
+            android:layout_marginRight="50sp" />
+
+    </FrameLayout>
+-->
     <LinearLayout
 
 

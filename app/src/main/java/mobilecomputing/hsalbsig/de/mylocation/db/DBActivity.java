@@ -40,14 +40,11 @@ import mobilecomputing.hsalbsig.de.mylocation.dao.TrackDao;
 public class DBActivity extends AppCompatActivity{
 
 
-    private ScrollView sv;
-
-
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_db);
 
-        this.sv = (ScrollView) findViewById(R.id.scrollView);
+        ScrollView sv = (ScrollView) findViewById(R.id.scrollView);
         final ListView view = (ListView) findViewById(R.id.listView);
 
         DaoMaster.DevOpenHelper helper = new DaoMaster.DevOpenHelper(this,"location-db",null);
@@ -55,8 +52,8 @@ public class DBActivity extends AppCompatActivity{
         DaoMaster daoMaster = new DaoMaster(db);
         DaoSession daoSession = daoMaster.newSession();
 
-        MarkerDao markerDao = daoSession.getMarkerDao();
-        TrackDao trackDao = daoSession.getTrackDao();
+        final MarkerDao markerDao = daoSession.getMarkerDao();
+        final TrackDao trackDao = daoSession.getTrackDao();
         List<Track> list = trackDao.loadAll();
 
 
@@ -75,19 +72,36 @@ public class DBActivity extends AppCompatActivity{
             });
             view.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
                 @Override
-                public boolean onItemLongClick(AdapterView<?> arg0, View arg1,
-                                               int pos, long id) {
+                public boolean onItemLongClick(final AdapterView<?> arg0, View arg1,
+                                               final int pos, long id) {
 
                     Log.v("long clicked","pos: " + pos);
-                    Track track = adapter.getItem(pos);
+                    final Track track = adapter.getItem(pos);
                     Log.v("track selected", "track: " + track.getName());
 
-                    DialogInterface.OnClickListener dialogClickListener = new CustomDialogListener(track, (DBActivity)view.getContext());
-
+                    //DialogInterface.OnClickListener dialogClickListener = new CustomDialogListener(track, (DBActivity)view.getContext());
+                    DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            switch (which) {
+                                case DialogInterface.BUTTON_POSITIVE:
+                                    adapter.remove(track);
+                                    for(Marker marker: track.getTrack()){
+                                        markerDao.delete(marker);
+                                    }
+                                    trackDao.delete(track);
+                                    break;
+                                case DialogInterface.BUTTON_NEGATIVE:
+                                    break;
+                            }
+                        }
+                    };
 
                     AlertDialog.Builder builder = new AlertDialog.Builder(view.getContext());
-                    builder.setMessage("Delete track: " + "" + track.getName()).setPositiveButton(R.string.yes, dialogClickListener)
-                            .setNegativeButton(R.string.no, dialogClickListener).show();
+                    //builder.setMessage(getString(R.string.delete_dialogue) + "" + track.getName()).setPositiveButton(R.string.yes, dialogClickListener)
+                    //        .setNegativeButton(R.string.no, dialogClickListener).show();
+                    builder.setMessage(getString(R.string.delete_dialogue) + "" + track.getName()).setPositiveButton(R.string.yes, listener)
+                            .setNegativeButton(R.string.no, listener).show();
 
 
 
@@ -116,7 +130,7 @@ public class DBActivity extends AppCompatActivity{
         }
         return super.onOptionsItemSelected(item);
     }
-
+/*
     class CustomDialogListener implements DialogInterface.OnClickListener{
         Track track = null;
         DBActivity actvt = null;
@@ -141,4 +155,5 @@ public class DBActivity extends AppCompatActivity{
             }
         }
     }
+    */
 }

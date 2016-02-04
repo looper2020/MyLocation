@@ -21,6 +21,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -63,7 +64,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     long startTime = 0;
 
     private final static int PLAY_SERVICES_RESOLUTION_REQUEST = 1000;
-
+    public ProgressBar progressBar;
     private LocationRequest mLocationRequest;
     public EditText editTextInterval;
     private GoogleMap googleMap;
@@ -97,6 +98,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        this.progressBar = (ProgressBar) findViewById(R.id.progressBar);
+        this.progressBar.setVisibility(View.GONE);
         this.button_start = (Button) findViewById(R.id.button_start);
         this.button_intervalTime = (Button) findViewById(R.id.button_intervalTime);
 
@@ -208,8 +211,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 startActivityForResult(intent, 1);
                 break;
 
-            case R.id.menu_save:
-                openSaveDialog();
+            case R.id.menu_delete:
+                trackDao.deleteAll();
+                markerDao.deleteAll();
                 break;
         }
         return super.onOptionsItemSelected(item);
@@ -420,9 +424,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 //          Remove all Marker on google Map
             googleMap.clear();
 
+            TextView textViewStart = (TextView) findViewById(R.id.textView_status);
+
             if (isTracking == false) {
                 connectToGoogleMap();
-
+                this.progressBar.setVisibility(View.VISIBLE);
                 Toast.makeText(getApplicationContext(), "Tracking Started!", Toast.LENGTH_LONG).show();
                 isTracking = true;
                 updateTimer();
@@ -438,11 +444,13 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 }
                 startLocation();
 
-                TextView textViewStart = (TextView) findViewById(R.id.textView_status);
+
                 textViewStart.setText(R.string.tracking);
-                button_start.setText("stop");
+                button_start.setText(R.string.stop);
             } else {
+                this.progressBar.setVisibility(View.INVISIBLE);
                 stopTracking();
+                textViewStart.setText(R.string.track_stop);
                 openSaveDialog();
             }
 
