@@ -3,7 +3,7 @@
     <string name="latitude">Breitengrad: </string>
     <string name="longitude">Längengrad: </string>
     <string name="accuracy">Genauigkeit: </string>
-    <string name="speed">Geschwindigkei: </string>
+    <string name="speed">Geschwindigkeit: </string>
     <string name="bearing">Bearing: </string>
     <string name="start">Start</string>
     <string name="stop">Stop</string>
@@ -26,4 +26,6 @@
     <string name="welcome">Test</string>
 
     <string name="saveTrackTitle">Letzen Track speichern</string>
+
+    <string name="track_stop">Verfolgung angehalten!</string>
 </resources>

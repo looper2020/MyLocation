@@ -27,4 +27,6 @@
 
     <string name="saveTrackTitle">Save your latest Track</string>
     <string name="title_activity_setup">SetupActivity</string>
+
+    <string name="track_stop">Tracking Stopped!</string>
 </resources>

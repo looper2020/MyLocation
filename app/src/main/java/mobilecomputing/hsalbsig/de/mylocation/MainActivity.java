@@ -173,7 +173,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private void stopTracking() {
         Log.d("Test", "Stop Button clicked");
         if (isTracking == true) {
-            Toast.makeText(getApplicationContext(), "Tracking Stopped!", Toast.LENGTH_LONG).show();
+            Toast.makeText(getApplicationContext(), R.string.track_stop, Toast.LENGTH_LONG).show();
             isTracking = false;
 
             //Timer

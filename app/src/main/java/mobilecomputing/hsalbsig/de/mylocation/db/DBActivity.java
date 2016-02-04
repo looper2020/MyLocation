@@ -34,9 +34,7 @@ import mobilecomputing.hsalbsig.de.mylocation.dao.MarkerDao;
 import mobilecomputing.hsalbsig.de.mylocation.dao.Track;
 import mobilecomputing.hsalbsig.de.mylocation.dao.TrackDao;
 
-/**
- * Created by Michael on 18.01.2016.
- */
+
 public class DBActivity extends AppCompatActivity{
 
 
