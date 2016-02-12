@@ -65,17 +65,21 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     long startTime = 0;
 
     private final static int PLAY_SERVICES_RESOLUTION_REQUEST = 1000;
-    public ProgressBar progressBar;
     private LocationRequest mLocationRequest;
-    public EditText editTextInterval;
+    private ProgressBar progressBar;
+
+    private EditText editTextInterval;
     private GoogleMap googleMap;
+
     //GoogleLocationAPI
     private GoogleApiClient mGoogleApiClient;
     private Location mLastLocation;
+
     //DatabaseDAO
-    MarkerDao markerDao = null;
-    TrackDao trackDao = null;
-    List<Marker> markerList = new ArrayList<>();
+    private MarkerDao markerDao = null;
+    private TrackDao trackDao = null;
+    private List<Marker> markerList = new ArrayList<>();
+
     //Timer
     TextView timerTextView;
     Handler timerHandler = new Handler();
@@ -108,10 +112,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         this.button_intervalTime.setOnClickListener(this);
 
 
-        //IntervalTime ext
+        //IntervalTimer
         editTextInterval = (EditText) findViewById(R.id.editText_intervalTime);
 
-        //Availability status check
+        //GooglePlayServices availability status check
         int status = GooglePlayServicesUtil.isGooglePlayServicesAvailable(getBaseContext());
 
         if (status != ConnectionResult.SUCCESS) {
@@ -143,11 +147,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     }
 
-    @Override
-    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
-        super.onCreateContextMenu(menu, v, menuInfo);
-    }
-
+    //Options Menu with buttons DB Log and DB Delete
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
@@ -155,24 +155,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         return true;
     }
 
-    private void startLocation() {
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            return;
-        }
-        mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
 
-        if (mLastLocation != null) {
-            this.latitude = mLastLocation.getLatitude();
-            this.longitude = mLastLocation.getLongitude();
-            this.accuracy = mLastLocation.getAccuracy();
-            this.speed = mLastLocation.getSpeed();
-            this.bearing = mLastLocation.getBearing();
-
-        }
-
-        updateGui();
-    }
-
+    //Stops the tracking and resets the timer
     private void stopTracking() {
         Log.d("Test", "Stop Button clicked");
         if (isTracking == true) {
@@ -189,6 +173,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     }
 
+    //updates gui values
     private void updateGui() {
         TextView textViewLatitude = (TextView) findViewById(R.id.textView_latitude);
         TextView textViewLongitude = (TextView) findViewById(R.id.textView_longitude);
@@ -203,6 +188,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         textViewBearing.setText(getString(R.string.bearing) + " " + String.valueOf(bearing));
     }
 
+    //decides which actions to take when button Delete DB and DB Log pressed
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -246,6 +232,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         return super.onOptionsItemSelected(item);
     }
 
+    //checks google map availability
     @Override
     public void onMapReady(GoogleMap googleMap) {
         this.googleMap = googleMap;
@@ -264,6 +251,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
 
+    //set interval and create request
     @Override
     public void onConnected(Bundle bundle) {
         // Create the LocationRequest object
@@ -279,24 +267,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     }
 
-
-    //Diese Methode war Schuld xD
-    public void updateTimer() {
-        // Create the LocationRequest object
-        /*
-        mLocationRequest = LocationRequest.create()
-                .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
-                .setInterval(this.intervalTime * 1000)        // 10 seconds, in milliseconds
-                .setFastestInterval(this.intervalTime * 1000); // 10 second, in milliseconds
-        if (mGoogleApiClient.isConnected()) {
-            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                return;
-            }
-            LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, MainActivity.this);
-        }
-        Log.d("Test", "onConnect called Location services connected");
-        */
-    }
 
     @Override
     public void onConnectionSuspended(int i) {
@@ -340,6 +310,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         return true;
     }
 
+    //connects the GoogleApi Client
     private void connectToGoogleMap() {
         if (mGoogleApiClient != null && !mGoogleApiClient.isConnected()) {
             mGoogleApiClient.connect();
@@ -347,12 +318,14 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     }
 
+    //disconnects the GoogleApi client
     private void disconnectFromGoogleMap() {
         if (mGoogleApiClient != null && mGoogleApiClient.isConnected()) {
             mGoogleApiClient.disconnect();
         }
     }
 
+    //Updates gps values on call and places waypoint
     @Override
     public void onLocationChanged(Location location) {
 
@@ -368,6 +341,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         placeWaypoint();
     }
 
+    //adds marker on GoogleMap
     private void placeWaypoint() {
         LatLng myPos = new LatLng(latitude, longitude);
         googleMap.addMarker(new MarkerOptions().position(myPos).title("Meine Position"));
@@ -377,7 +351,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         markerList.add(marker);
     }
 
-
+    //opens save Dialog when stop button is pressed
     public void openSaveDialog() {
         DialogFragment dialogTrack = new DialogSaveFragment();
         Bundle args = new Bundle();
@@ -387,6 +361,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         Toast.makeText(getApplicationContext(), "Track saved", Toast.LENGTH_LONG).show();
     }
 
+    //save button for dialog
     @Override
     public void onDialogSaveSaveClick(String title, String tag) {
         //save the track
@@ -407,7 +382,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         markerList.clear();
     }
 
-
+    //get data from dbactivity
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -431,6 +406,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     }
 
+    //draws the polyline between the markers
     private void connectMarkers(List<Marker> markers) {
         PolylineOptions options = new PolylineOptions();
         for (Marker marker : markers) {
@@ -445,7 +421,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     public void onClick(View v) {
         if (v == button_start) {
             Toast.makeText(getApplicationContext(), "onClick Methode Start Button geklickt", Toast.LENGTH_LONG).show();
-//          Remove all Marker on google Map
+
+            //Remove all Marker on google Map
             googleMap.clear();
 
             TextView textViewStart = (TextView) findViewById(R.id.textView_status);
@@ -455,7 +432,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 this.progressBar.setVisibility(View.VISIBLE);
                 Toast.makeText(getApplicationContext(), "Tracking Started!", Toast.LENGTH_LONG).show();
                 isTracking = true;
-                //updateTimer();
 
                 //Timer
                 startTime = System.currentTimeMillis();
@@ -466,7 +442,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     Log.d("Test", "no permission");
                     return;
                 }
-                startLocation();
 
 
                 textViewStart.setText(R.string.tracking);
@@ -493,10 +468,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 editTextInterval.setText(String.valueOf(setIntervalTime(this.intervalTime)));
             }
         } else
-            Toast.makeText(getApplicationContext(), "Im onClick event stimmt was nicht", Toast.LENGTH_LONG).show();
+            Toast.makeText(getApplicationContext(), "OOPS something went wrong", Toast.LENGTH_LONG).show();
     }
 
-
+    // set interval time for location updates
     public int setIntervalTime(int intervalTime) {
         if (intervalTime > 0 && intervalTime < 61) {
             this.intervalTime = intervalTime;
